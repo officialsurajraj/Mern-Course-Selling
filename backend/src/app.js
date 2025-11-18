@@ -15,13 +15,12 @@ app.use(cookieParser());
 
 
 // Routes import
+import userRouter from "./routes/user.routes.js"
 app.get("/", (req, res) => {
     res.json({ message: "Hello Coder" })
-})
-
-
+});
 
 // Routes Delarations
-
+app.use("/api/user", userRouter)
 
 export { app }
