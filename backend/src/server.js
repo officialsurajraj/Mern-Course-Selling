@@ -1,9 +1,12 @@
 import dotenv from "dotenv"
 import { app } from "./app.js"
+import { connected } from "./config/db.js"
 
 dotenv.config({
     path: './env'
 })
+
+connected()
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
