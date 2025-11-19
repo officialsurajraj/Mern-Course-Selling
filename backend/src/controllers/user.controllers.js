@@ -78,3 +78,27 @@ export const logout = async (req, res) => {
         .clearCookie("accessToken", options)
         .json({ message: "user successfully logout now" })
 }
+export const uploadImage = async (req, res) => {
+    try {
+        const image = req.file?.path
+        console.log(image)
+        if (!image) {
+            return res.status(400).json({ message: "please upload image" })
+        }
+        const user = await User.findByIdAndUpdate(req.user._id,
+            {
+                $set: {
+                    photoUrl: image
+                }
+            },
+            {
+                new: true
+            }
+        )
+        return res.status(200).json({ message: "Image Successfully uploaded now ", user })
+
+    } catch (error) {
+        console.log(`Image Uploading Failed now : ${error}`)
+    }
+
+}
