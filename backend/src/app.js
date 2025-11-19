@@ -16,11 +16,14 @@ app.use(cookieParser());
 
 // Routes import
 import userRouter from "./routes/user.routes.js"
+import courseRouter from "./routes/course.routes.js"
+
 app.get("/", (req, res) => {
     res.json({ message: "Hello Coder" })
 });
 
 // Routes Delarations
 app.use("/api/user", userRouter)
+app.use("/api/course", courseRouter)
 
 export { app }

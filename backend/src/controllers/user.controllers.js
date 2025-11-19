@@ -1,7 +1,6 @@
 import { User } from "../models/user.models.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
-
 const generateAccessToken = async (userId) => {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
