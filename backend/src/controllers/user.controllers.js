@@ -81,9 +81,9 @@ export const logout = async (req, res) => {
 export const uploadImage = async (req, res) => {
     try {
         const image = req.file?.path
-
+        console.log(req.file)
         if (!image) {
-            return res.status(400).json({ message: "please upload image" })
+            return res.status(404).json({ message: "Image is not found" })
         }
         const user = await User.findByIdAndUpdate(req.user._id,
             {

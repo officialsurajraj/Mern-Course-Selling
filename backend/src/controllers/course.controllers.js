@@ -1,3 +1,4 @@
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Course } from "../models/course.models.js"
 
 export const createCourse = async (req, res) => {
@@ -76,4 +77,68 @@ export const getCreatorCourses = async (req, res) => {
         )
     }
 }
+export const editCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+
+        if (!courseId) {
+            return res.status(400).json({
+                message: "Course ID is required",
+            });
+        }
+
+        const allowedFields = [
+            "title",
+            "subTitle",
+            "description",
+            "category",
+            "level",
+            "price",
+            "isPublished"
+        ];
+
+        let updateData = {};
+
+        for (let field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
+            }
+        }
+
+        if (req.file?.path) {
+            updateData.thumbnail = req.file.path;
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                message: "No valid data provided to update",
+            });
+        }
+
+        const updatedCourse = await Course.findByIdAndUpdate(
+            courseId,
+            { $set: updateData },
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
+
+        if (!updatedCourse) {
+            return res.status(404).json({
+                message: "Course not found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Course updated successfully",
+            updatedCourse,
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: `Failed to update course: ${error.message}`,
+        });
+    }
+};
 
