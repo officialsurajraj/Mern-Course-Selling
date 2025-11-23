@@ -1,5 +1,6 @@
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Course } from "../models/course.models.js"
+import { Lecture } from "../models/lecture.models.js";
 
 export const createCourse = async (req, res) => {
     try {
@@ -164,6 +165,47 @@ export const removeCourse = async (req, res) => {
             {
                 message: "Failed to remove course",
                 error
+            }
+        )
+    }
+}
+
+
+// Create lectures now
+
+export const createLecture = async (req, res) => {
+    try {
+        const { lectureTitle } = req.body;
+        const { courseId } = req.params;
+
+        if (!lectureTitle || !courseId) {
+            return res.status(400).json(
+                {
+                    message: "Title & Course id is required"
+                }
+            )
+        }
+        const lecture = await Lecture.create({ lectureTitle })
+        const course = await Course.findById(courseId);
+
+        if (course) {
+            course.lecture.push(lecture);
+        }
+
+        await course.populate("lecture")
+        await course.save()
+
+        return res.status(200).json(
+            {
+                message: "Course is succesfully created now",
+                course, lecture
+            }
+        )
+    } catch (error) {
+        return res.status(500).json(
+            {
+                message: `Something went wrong whiling creating Lecture ${error}`
+
             }
         )
     }
