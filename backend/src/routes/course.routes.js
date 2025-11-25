@@ -7,7 +7,10 @@ import {
     editCourse,
     removeCourse,
     createLecture,
-    getCourseLecture
+    getCourseLecture,
+    editLecture,
+    removeLecture,
+    getCreatorById
 } from "../controllers/course.controllers.js"
 
 import { verifyJWT } from "../middleware/auth.middleware.js";
@@ -21,7 +24,10 @@ router.route("/creator-course").get(verifyJWT, getCreatorCourses)
 router.route("/editcourse/:courseId").patch(verifyJWT, upload.single("thumbnail"), editCourse)
 router.route("/removecourse/:courseId").delete(verifyJWT, removeCourse)
 router.route("/create-lecture/:courseId").post(verifyJWT, createLecture);
-router.route("/getCourseLecture/:courseId").get(getCourseLecture)
+router.route("/getCourseLecture/:courseId").get(verifyJWT, getCourseLecture)
+router.route("/edit-lecture/:lectureId").patch(verifyJWT, upload.single("videoUrl"), editLecture)
+router.route("/removelecture/:lectureId").delete(verifyJWT, removeLecture)
+router.route("/getcreator").get(verifyJWT, getCreatorById)
 
 
 export default router
