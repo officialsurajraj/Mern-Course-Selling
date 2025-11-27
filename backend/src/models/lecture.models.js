@@ -5,6 +5,9 @@ const lectureSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        duration: {
+            type: Number
+        },
         videoUrl: {
             type: String,
         },

@@ -8,24 +8,34 @@ const generateAccessToken = async (userId) => {
 }
 
 export const register = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    try {
+        const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-        return res.status(401).json({ message: "Please fill all the fields" });
-    }
-    const existedUser = await User.findOne({ email });
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Please fill all the fields" });
+        }
 
-    if (existedUser) {
-        return res.status(401).json({ message: "This User is already exist in tha database" })
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format." });
+        }
+
+        const existedUser = await User.findOne({ email });
+
+        if (existedUser) {
+            return res.status(409).json({ message: "This User is already exist in tha database" })
+        }
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role
+        })
+        const createUser = await User.findById(user._id).select("-password");
+        return res.status(201).json({ message: "User register successfully now", createUser })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server error", error: error.message })
     }
-    const user = await User.create({
-        name,
-        email,
-        password,
-        role
-    })
-    const createUser = await User.findById(user._id).select("-password");
-    return res.status(201).json({ message: "User register successfully now", createUser })
 }
 
 export const login = async (req, res) => {
@@ -81,7 +91,6 @@ export const logout = async (req, res) => {
 export const uploadImage = async (req, res) => {
     try {
         const image = req.file?.path
-        console.log(req.file)
         if (!image) {
             return res.status(404).json({ message: "Image is not found" })
         }
@@ -94,7 +103,7 @@ export const uploadImage = async (req, res) => {
             {
                 new: true
             }
-        )
+        ).select("-password -enrolledCourses")
         return res.status(200).json({ message: "Image Successfully uploaded now ", user })
 
     } catch (error) {
@@ -151,3 +160,6 @@ export const updateAccountDetails = async (req, res) => {
 
     return res.status(200).json({ message: "User information update successflly now", user })
 }
+
+
+// Total 8 API 

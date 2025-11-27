@@ -32,47 +32,51 @@ export const createCourse = async (req, res) => {
 }
 export const getPublishedCourses = async (req, res) => {
     try {
-        const course = await Course.find({ isPublished: true }).populate("lectures reviews");
-        if (!course) {
-            return res.status(401).json(
+        const course = await Course.find({ isPublished: true });
+        if (!course || course.length == 0) {
+            return res.status(404).json(
                 {
-                    message: "Course is not found"
+                    message: "Course is not found",
+                    totalCourse: course.length
                 }
             )
         }
         return res.status(200).json(
             {
                 message: "Total Course",
+                totalCourse: course.length,
+                course
             },
-            course
         )
     } catch (error) {
-        return res.status(401).json(
+        return res.status(500).json(
             {
                 message: error
             }
         )
     }
 }
-
 export const getCreatorCourses = async (req, res) => {
     try {
         const creatorCourse = await Course.find({ creator: req.user._id });
-        if (!creatorCourse) {
+        if (!creatorCourse || creatorCourse.length === 0) {
             return res.status(404).json(
                 {
-                    message: "Course is not found"
+                    message: "Course is not found",
+                    totalCourse: creatorCourse.length
+
                 }
             )
         }
         return res.status(200).json(
             {
                 message: "Successfully course fetched",
+                totalCourse: creatorCourse.length,
                 creatorCourse
             }
         )
     } catch (error) {
-        return res.json(400).json(
+        return res.json(500).json(
             {
                 message: error
             }
@@ -190,7 +194,7 @@ export const createLecture = async (req, res) => {
         const course = await Course.findById(courseId);
 
         if (course) {
-            course.lecture.push(lecture);
+            course.lecture.push(lecture._id);
         }
 
         await course.populate("lecture")
@@ -235,40 +239,46 @@ export const getCourseLecture = async (req, res) => {
     }
 };
 
+
 export const editLecture = async (req, res) => {
     try {
         const { lectureId } = req.params;
+        const { lectureTitle, duration, isPreviewFree } = req.body;
+
         if (!lectureId) {
-            return res.status(400).json({ message: "lecture Id is required now" })
+            return res.status(400).json({ message: "Lecture ID is required" });
         }
-        let { isPreviewFree, lectureTitle } = req.body;
 
-        if (isPreviewFree !== undefined) {
-            isPreviewFree = (isPreviewFree === true || isPreviewFree === "true");
-        }
-        const lecture = await Lecture.findById(lectureId)
-
+        const lecture = await Lecture.findById(lectureId);
         if (!lecture) {
-            return res.status(404).json({ message: "Lecture not found", lecture, });
+            return res.status(404).json({ message: "Lecture not found" });
         }
 
+        if (lectureTitle !== undefined) lecture.lectureTitle = lectureTitle;
+        if (duration !== undefined) lecture.duration = duration;
+        if (isPreviewFree !== undefined) lecture.isPreviewFree = isPreviewFree;
 
         if (req.file?.path) {
             lecture.videoUrl = req.file.path;
         }
 
-        if (lectureTitle) {
-            lecture.lectureTitle = lectureTitle;
-        }
-
-        if (isPreviewFree !== undefined) {
-            lecture.isPreviewFree = isPreviewFree;
-        }
-
         await lecture.save();
-        return res.status(200).json(lecture);
+
+        const updatedLecture = await Lecture.findById(lectureId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Lecture updated successfully",
+            updatedLecture,
+        });
+
     } catch (error) {
-        return res.status(500).json({ message: `Failed to edit Lectures ${error}` });
+        console.error("Error while updating lecture:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update lecture",
+            error: error.message,
+        });
     }
 };
 
