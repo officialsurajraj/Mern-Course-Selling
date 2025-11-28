@@ -3,7 +3,7 @@ import { User } from "../models/user.models.js"
 
 const verifyJWT = async (req, res, next) => {
     try {
-        const token = req.cookies?.accessToken || req.header("Authorization")?.replace('Bearer ', "");
+        const token = req.cookies?.accessToken || req.headers.authorization?.replace("Bearer ", "")
         if (!token) {
             return res.status(401)
                 .json({ message: "Unauthorized Request" })
@@ -20,7 +20,10 @@ const verifyJWT = async (req, res, next) => {
         next()
 
     } catch (error) {
-        console.log(`Invalid Access Token : ${error}`)
+        return res.status(401).json({
+            message: "Invalid or Expired Token",
+            success: false
+        });
     }
 }
 

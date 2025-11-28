@@ -40,30 +40,34 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const existedUseruser = await User.findOne({ email });
 
-    if (!user) {
+    if (!existedUseruser) {
         return res.status(401).json({ message: "User is not Exist now" })
     };
-    const isPasswordValid = await user.isPasswordCorrect(password);
+    const isPasswordValid = await existedUseruser.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
         return res.status(401).json({
             message: "Password is incorrect now"
         })
     }
-    const { accessToken } = await generateAccessToken(user._id)
+    const { accessToken } = await generateAccessToken(existedUseruser._id)
 
 
-    const loggedInUser = await User.findById(user._id).select("-password")
+    const user = await User.findById(existedUseruser._id).select("-password")
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: false,
+        sameSite: "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+
     }
-    return res.status(201)
+    return res.status(200)
         .cookie("accessToken", accessToken, options)
-        .json({ message: "User logged in successfully", loggedInUser, accessToken })
+        .json({ success: true, user });
+
 }
 
 export const logout = async (req, res) => {
@@ -137,7 +141,7 @@ export const getCurrentUser = async (req, res) => {
     return res.status(200).json(
         {
             message: "Current User data",
-            data: req.user
+            user: req.user
         }
     )
 }
