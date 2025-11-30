@@ -1,5 +1,5 @@
 import API from "../api/axios";
-import { handleApiError } from "./errorHandle";
+import { handleApiError } from "../error/errorHandle";
 
 export const registerUser = async ({ name, email, password, role }) => {
     try {

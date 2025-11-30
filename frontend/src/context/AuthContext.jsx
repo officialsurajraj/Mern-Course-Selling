@@ -9,7 +9,8 @@ import {
     login as loginApi,
     registerUser as registerApi,
     logout as logoutApi,
-    change_password as change_passwordApi, profile
+    change_password as change_passwordApi,
+    profile
 } from "../services/authService"
 
 const AuthContext = createContext(null);

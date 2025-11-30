@@ -40,28 +40,29 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
-    const existedUseruser = await User.findOne({ email });
+    const existedUser = await User.findOne({ email });
 
-    if (!existedUseruser) {
+    if (!existedUser) {
         return res.status(401).json({ message: "User is not Exist now" })
     };
-    const isPasswordValid = await existedUseruser.isPasswordCorrect(password);
+    const isPasswordValid = await existedUser.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
         return res.status(401).json({
             message: "Password is incorrect now"
         })
     }
-    const { accessToken } = await generateAccessToken(existedUseruser._id)
+    const { accessToken } = await generateAccessToken(existedUser._id)
 
 
-    const user = await User.findById(existedUseruser._id).select("-password")
+    const user = await User.findById(existedUser._id).select("-password")
 
     const options = {
         httpOnly: true,
         secure: false,
         sameSite: "Lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        // maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 1 * 24 * 60 * 60 * 1000 // 1 days
 
     }
     return res.status(200)

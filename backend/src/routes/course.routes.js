@@ -19,7 +19,7 @@ import { upload } from "../middleware/multer.middleware.js"
 const router = express.Router();
 
 router.route("/create-course").post(verifyJWT, createCourse);
-router.route("/published-course").post(verifyJWT, getPublishedCourses)
+router.route("/published-course").get(verifyJWT, getPublishedCourses)
 router.route("/creator-course").get(verifyJWT, getCreatorCourses)
 router.route("/editcourse/:courseId").patch(verifyJWT, upload.single("thumbnail"), editCourse)
 router.route("/removecourse/:courseId").delete(verifyJWT, removeCourse)
